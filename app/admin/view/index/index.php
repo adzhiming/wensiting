@@ -149,7 +149,7 @@
         </div>
         <!--底部版权-->
         <div class="footer"  @touchmove.prevent>
-            <div class="pull-right">© 2014-2018 <a href="http://www.crmeb.com/" target="_blank">CRMEB</a>
+            <div class="pull-right">© 2014-2018 <a href="http://wensiting.target-gd.com/" target="_blank">文思庭</a>
             </div>
         </div>
     </div>

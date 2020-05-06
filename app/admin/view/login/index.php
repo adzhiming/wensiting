@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex,nofollow" />
-    <title>登录管理系统 -  Powered by CRMEB!</title>
+    <title>文思庭商城系统</title>
     <meta name="generator" content="CRMEB! v2.5" />
     <meta name="author" content="CRMEB! Team and CRMEB UI Team" />
     <link href="{__FRAME_PATH}css/bootstrap.min.css?v=3.4.0" rel="stylesheet">
@@ -20,9 +20,10 @@
 <canvas id="canvas" width="900" height="300" style="position: fixed;top: -50px;width: 60%;left: 20%"></canvas>
 <div class="middle-box text-center loginscreen  animated fadeInDown">
     <div class="login-group">
-        <h3 class="login-logo">
-            <img src="{__ADMIN_PATH}images/logo.png">
-        </h3>
+        <div class="login-logo" style="height:60px;line-height:60px;font-size: 30px">
+            <!--<img src="{__ADMIN_PATH}images/logo.png">-->
+            文思庭商城后台
+        </div>
         <form role="form" action="{:url('verify')}" method="post" id="form" onsubmit="return false">
             <div class="form-group">
                 <div class="input-group m-b"><span class="input-group-addon"><i class="fa fa-user"></i> </span>
@@ -50,7 +51,7 @@
     </div>
 </div>
 <div class="footer" style=" position: fixed;bottom: 0;width: 100%;left: 0;margin: 0;opacity: 0.8;">
-    <div class="pull-right">© 2017-2019 <a href="http://www.crmeb.com/" target="_blank">CRMEB</a>
+    <div class="pull-right">© 2017-2019 <a href="http://wensiting.target-gd.com/" target="_blank">文思庭</a>
     </div>
 </div>
 
