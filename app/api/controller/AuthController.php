@@ -16,6 +16,7 @@ use crmeb\services\UtilService;
 use think\exception\ValidateException;
 use think\facade\Queue;
 use think\facade\Session;
+use Aliyun\Sms;
 
 /**微信小程序授权类
  * Class AuthController
@@ -77,28 +78,40 @@ class AuthController
      */
     public function verify(Request $request)
     {
-        list($phone, $type) = UtilService::postMore([['phone',0],['type','']],$request, true);
-        try {
-            validate(RegisterValidates::class)->scene('code')->check(['phone'=>$phone]);
-        } catch (ValidateException $e) {
-            return app('json')->fail($e->getError());
-        }
-        if(User::checkPhone($phone) && $type == 'register') return app('json')->fail('手机号已注册');
-        // if(!User::checkPhone($phone) && $type == 'login') return app('json')->fail('账号不存在！');
-        $time = 60;
-        if(CacheService::get('code_'.$phone))
-            return app('json')->fail($time.'秒内有效');
-        $code = rand(100000,999999);
-        $data['code'] = $code;
-        $res = SMSService::send($phone,SMSService::VERIFICATION_CODE,$data);
-        // $code = '123123';
-        // $res['code'] = $code;
-        // $res['msg'] = 'ok';
-        // $res['status'] = '200';
-        if($res['status'] == 400) return app('json')->fail('短信平台验证码发送失败'.$res['msg']);
-        CacheService::set('code_'.$phone, $code, $time);
-        return app('json')->success($res['msg'] ?? '发送失败');
+        $sms = new Sms();
+        $time = 60*5;
+        $phone = Request()->param('phone');
+        if (!$phone) return app('json')->fail('手机号码错误');
+        if(CacheService::get('code_'.$phone)) return app('json')->fail($time.'秒内有效');
+        $rs = $sms::requestSmsCode($phone,$signName='购物继售商城',$template='SMS_189621955');
+        if ($rs) CacheService::set('code_'.$phone, $rs, $time);
+        return app('json')->success( $rs ? '发送成功': '发送失败');
     }
+
+    // public function verify(Request $request)
+    // {
+        // list($phone, $type) = UtilService::postMore([['phone',0],['type','']],$request, true);
+        // try {
+        //     validate(RegisterValidates::class)->scene('code')->check(['phone'=>$phone]);
+        // } catch (ValidateException $e) {
+        //     return app('json')->fail($e->getError());
+        // }
+        // if(User::checkPhone($phone) && $type == 'register') return app('json')->fail('手机号已注册');
+        // // if(!User::checkPhone($phone) && $type == 'login') return app('json')->fail('账号不存在！');
+        // $time = 60;
+        // if(CacheService::get('code_'.$phone))
+        //     return app('json')->fail($time.'秒内有效');
+        // $code = rand(100000,999999);
+        // $data['code'] = $code;
+        // $res = SMSService::send($phone,SMSService::VERIFICATION_CODE,$data);
+        // // $code = '123123';
+        // // $res['code'] = $code;
+        // // $res['msg'] = 'ok';
+        // // $res['status'] = '200';
+        // if($res['status'] == 400) return app('json')->fail('短信平台验证码发送失败'.$res['msg']);
+        // CacheService::set('code_'.$phone, $code, $time);
+        // return app('json')->success($res['msg'] ?? '发送失败');
+    // }
 
     /**
      * H5注册新用户
@@ -175,11 +188,11 @@ class AuthController
 
         //验证验证码
         $verifyCode = CacheService::get('code_'.$phone);
-        if(!$verifyCode)
-            return app('json')->fail('请先获取验证码');
-        $verifyCode = substr($verifyCode, 0, 6);
-        if($verifyCode != $captcha)
-            return app('json')->fail('验证码错误');
+        if(!$verifyCode) return app('json')->fail('请先获取验证码');
+            
+        $verifyCode = substr($verifyCode, 0, 4);
+        if($verifyCode != $captcha) return app('json')->fail('验证码错误');
+            
 
         //数据库查询
         $user = User::where('account', $phone)->find();
