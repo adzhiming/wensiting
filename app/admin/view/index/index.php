@@ -28,8 +28,9 @@
             <ul class="nav" id="side-menu">
                 <li class="nav-header">
                     <div class="dropdown profile-element admin_open">
-                        <span>
-                            <img alt="image" class="imgbox" src="{$site_logo}" onerror="javascript:this.src='{__ADMIN_PATH}images/admin_logo.png';"/>
+                        <span style="font-size: 26px;height: 30px;line-height: 30px;text-align: center;color: #fff;">
+                            <!--<img alt="image" class="imgbox" src="{$site_logo}" onerror="javascript:this.src='{__ADMIN_PATH}images/admin_logo.png';"/>-->
+                            文思庭后台
                         </span>
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                             <span class="clear" style="margin-top: 20px;">
