@@ -1,0 +1,30 @@
+2020-05-02 18:35:47 pid:15824 Workerman[think] start in DAEMON mode
+2020-05-02 18:38:32 pid:16246 Workerman[think] start in DAEMON mode
+2020-05-02 18:38:57 pid:16325 Workerman[think] start in DAEMON mode
+2020-05-02 18:38:57 pid:16334 Worker[16334] process terminated
+2020-05-02 18:38:57 pid:16335 Worker[16335] process terminated
+2020-05-02 18:38:57 pid:16336 Worker[16336] process terminated
+2020-05-02 18:39:53 pid:16497 Workerman[think] start in DAEMON mode
+2020-05-02 18:39:53 pid:16497 Workerman[think] already running
+2020-05-02 18:40:21 pid:16608 Workerman[think] start in DAEMON mode
+2020-05-02 18:40:21 pid:16608 Workerman[think] already running
+2020-05-02 18:40:56 pid:16711 Workerman[think] restart 
+2020-05-02 18:40:56 pid:16711 Workerman[think] is stopping ...
+2020-05-02 18:41:01 pid:16711 Workerman[think] stop fail
+2020-05-02 18:41:32 pid:16798 Workerman[think] stop 
+2020-05-02 18:41:32 pid:16798 Workerman[think] not run
+2020-05-02 18:41:52 pid:16861 Workerman[think] start in DAEMON mode
+2020-05-02 19:52:25 pid:27836 Workerman[think] stop 
+2020-05-02 19:52:25 pid:27836 Workerman[think] is stopping ...
+2020-05-02 19:52:25 pid:16863 Workerman[think] stopping ...
+2020-05-02 19:52:30 pid:27836 Workerman[think] stop fail
+2020-05-02 19:52:34 pid:27867 Workerman[think] start in DAEMON mode
+2020-05-02 19:52:34 pid:27867 Workerman[think] already running
+2020-05-02 20:43:38 pid:35994 Workerman[think] start in DEBUG mode
+2020-05-02 20:43:38 pid:35994 Workerman[think] already running
+2020-05-02 20:43:53 pid:36033 Workerman[think] start in DEBUG mode
+2020-05-02 20:43:53 pid:36033 Workerman[think] already running
+2020-05-02 20:44:26 pid:36133 Workerman[think] restart 
+2020-05-02 20:44:26 pid:36133 Workerman[think] is stopping ...
+2020-05-02 20:44:31 pid:36133 Workerman[think] stop fail
+2020-05-03 00:06:20 pid:16863 Workerman[think] stopping ...
