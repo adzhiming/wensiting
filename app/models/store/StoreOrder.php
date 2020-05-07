@@ -516,6 +516,74 @@ class StoreOrder extends BaseModel
         }
     }
 
+    public static function order_applysale($id, $uid)
+    {
+        $order = self::where('id', $id)->find();
+        if (!$order) return self::setErrorInfo('订单不存在');
+        if ($order['is_sale'] >0 ) return self::setErrorInfo('订单已继售');
+        $h5_pay_code = Db::name('user')->where('uid',$uid)->value('h5_pay_code');
+        if (!$h5_pay_code  ) return self::setErrorInfo('请设置自己的收款码，再操作');
+        $product_id = Db::name('store_order_cart_info')->where('oid',$id)->value('product_id');
+        $store_product_attr = Db::name('store_product_attr_value')->where('product_id',$product_id)->count();
+        if ($store_product_attr >= 1 ) return self::setErrorInfo('此商品订单不支持继售，不支持多规格！！！');
+        if ($order['total_num'] > 1 ) return self::setErrorInfo('此商品订单不支持继售，商品数量不为一！！！');
+        $product = Db::name('store_product')->where('id',$product_id)->find();
+        if($product['uuid']) return self::setErrorInfo('该商品已经存在继售');
+        // $is_sale_rade = sysConfig('is_sale_rate');;
+        // $product_edit = array();
+        // $product_edit['price'] = $product['price'] * (1+$is_sale_rade/100);
+        // $product_edit['vip_price'] = $product['vip_price'] * (1+$is_sale_rade/100);
+        // $product_edit['ot_price'] = $product['ot_price'] * (1+$is_sale_rade/100);
+        // $product_edit['cost'] = $product['cost'] * (1+$is_sale_rade/100);
+        // $product_edit['stock'] = $product['stock'] +1;
+        // $product_edit['is_show'] = 1;
+        // $product_edit['is_hot'] = 1;
+        // $product_edit['is_new'] = 1;
+        // $product_edit['is_del'] = 0;
+        // $product_edit['mer_use'] = 1;
+        // $product_edit['uuid'] = $order['uid'];
+        // $product_edit['order_id'] = $id;
+        Db::startTrans();
+        try {
+            $res = self::where('id', $id)->update(['is_sale_valid' =>1]);
+            // 提交事务
+            Db::commit();
+            return $res;
+        } catch (\Exception $e) {
+            // 回滚事务
+            Db::rollback();
+            return self::setErrorInfo('修改失败');
+        }
+    }
+
+    /**
+     * 
+     * @param string order_id 订单id
+     * @param $uid
+     * @return bool
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function ispayOrder($order_id, $uid)
+    {
+        $order = self::where('id', $order_id)->where('uid', $uid)->find();
+        if (!$order) return self::setErrorInfo('没有查到此订单');
+        Db::startTrans();
+        try {
+            $order->is_pay_valid = 1;
+            if ($order->save()) {
+                Db::commit();
+                return true;
+            } else
+                return false;
+        } catch (\Exception $e) {
+            Db::rollback();
+            return self::setErrorInfo(['line' => $e->getLine(), 'message' => $e->getMessage()]);
+        }
+    }
+
+
 
     /**
      * 生成订单唯一id
@@ -1125,10 +1193,10 @@ class StoreOrder extends BaseModel
     public static function getUserOrderList($uid, $status = '', $page = 0, $limit = 8)
     {
         if ($page) $list = self::statusByWhere($status, $uid)->where('is_del', 0)->where('uid', $uid)
-            ->field('add_time,seckill_id,bargain_id,combination_id,id,order_id,pay_price,total_num,total_price,pay_postage,total_postage,paid,status,refund_status,pay_type,coupon_price,deduction_price,pink_id,delivery_type,is_del,shipping_type')
+            // ->field('add_time,seckill_id,bargain_id,combination_id,id,order_id,pay_price,total_num,total_price,pay_postage,total_postage,paid,status,refund_status,pay_type,coupon_price,deduction_price,pink_id,delivery_type,is_del,shipping_type')
             ->order('add_time DESC')->page((int)$page, (int)$limit)->select()->toArray();
         else  $list = self::statusByWhere($status, $uid)->where('is_del', 0)->where('uid', $uid)
-            ->field('add_time,seckill_id,bargain_id,combination_id,id,order_id,pay_price,total_num,total_price,pay_postage,total_postage,paid,status,refund_status,pay_type,coupon_price,deduction_price,pink_id,delivery_type,is_del,shipping_type')
+            // ->field('add_time,seckill_id,bargain_id,combination_id,id,order_id,pay_price,total_num,total_price,pay_postage,total_postage,paid,status,refund_status,pay_type,coupon_price,deduction_price,pink_id,delivery_type,is_del,shipping_type')
             ->order('add_time DESC')->page((int)$page, (int)$limit)->select()->toArray();
         foreach ($list as $k => $order) {
             $list[$k] = self::tidyOrder($order, true);

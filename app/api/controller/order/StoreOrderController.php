@@ -637,6 +637,33 @@ class StoreOrderController
         return app('json')->fail(StoreOrder::getErrorInfo('操作失败'));
     }
 
+    /**
+     * 支付申请审核
+     * @param Request $request
+     */
+    public  function order_ispay(Request $request)
+    {
+        list($id) = UtilService::postMore([['id',0]],$request, true);
+        if(!$id) return app('json')->fail('参数错误');
+        if (StoreOrder::ispayOrder($id, $request->uid()))
+            return app('json')->successful('操作成功');
+        return app('json')->fail(StoreOrder::getErrorInfo('操作失败'));
+    }
+
+    /**
+     * 支付申请审核
+     * @param Request $request
+     */
+    public  function order_applysale(Request $request)
+    {
+        list($id) = UtilService::postMore([['id',0]],$request, true);
+        if(!$id) return app('json')->fail('参数错误');
+        if (StoreOrder::order_applysale($id, $request->uid()))
+            return app('json')->successful('操作成功');
+        return app('json')->fail(StoreOrder::getErrorInfo('操作失败'));
+    }
+    
+
 
     /**
      * 订单产品信息

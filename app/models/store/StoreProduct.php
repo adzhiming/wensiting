@@ -59,6 +59,7 @@ class StoreProduct extends BaseModel
             $ck = Db::table('eb_store_order')->alias('so')
                     ->join(['eb_store_order_cart_info'=>'sc'],'sc.oid=so.id')
                     ->where('so.paid','0')
+                    ->where('so.is_del','0')
                     ->where('sc.product_id',$ret['id'])
                     ->count();
                 $ret['is_sale'] = $ck;
@@ -267,12 +268,14 @@ class StoreProduct extends BaseModel
         return $list;
     }
 
+    // TODO 检测 有没有有没有哦预定订单
     public static function productIsSale($data){
         if ($data) {
             foreach ($data as &$value) {
                 $ck = Db::table('eb_store_order')->alias('so')
                     ->join(['eb_store_order_cart_info'=>'sc'],'sc.oid=so.id')
                     ->where('so.paid','0')
+                    ->where('so.is_del','0')
                     ->where('sc.product_id',$value->id)
                     ->count();
                 $value->is_sale = $ck;
@@ -280,7 +283,6 @@ class StoreProduct extends BaseModel
         }
         return $data;
     }
-
 
     /**
      * 优惠产品
@@ -492,6 +494,7 @@ class StoreProduct extends BaseModel
 
     /**
      * TODO test 删除超时订单 中间件 \app\http\middleware\AllowOriginMiddleware::class 中调用
+     * 如果申请审核拒绝失败的订单 2天还没处理也删除
      * @param $id
      * @param string $field
      * @return mixed
@@ -499,8 +502,10 @@ class StoreProduct extends BaseModel
     public static function delUnPayOrder(){
         $order_cancel_time = sys_config('order_cancel_time');
         $time = time() - $order_cancel_time * 3600;
-        Db::name('store_order')->where('paid','0')->where('pay_type','payh5code')->where('pay_time','null')->where('add_time','<',$time)->where('status','<','1')->delete();
-        Db::name('store_cart')->where('is_pay','0')->where('is_new','0')->where('add_time','<',$time)->delete();
+        $time_cancle = time() - 48 * 3600;
+        Db::name('store_order')->where('paid','0')->where('is_pay_valid','0')->where('pay_type','payh5code')->where('pay_time','null')->where('add_time','<',$time)->where('status','<','1')->update(['is_del'=>'1','is_system_del'=>'1']);
+        Db::name('store_order')->where('paid','0')->where('is_pay_valid','3')->where('pay_type','payh5code')->where('pay_time','null')->where('add_time','<',$time_cancle)->where('status','<','1')->update(['is_del'=>'1','is_system_del'=>'1']);
+        Db::name('store_cart')->where('is_pay','0')->where('is_new','0')->where('add_time','<',$time)->update(['is_del'=>'1']);
         return true;
     }
 

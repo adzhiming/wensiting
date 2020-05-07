@@ -667,11 +667,22 @@ class StoreOrder extends AuthController
      * 立即支付
      * @param $id
      */
-    public function offline($id){
+    public function payh5code($id){
         $res = StoreOrderModel::updateOffline($id);
         if($res){
             event('StoreProductOrderOffline',[$id]);
-            StoreOrderStatus::setStatus($id,'offline','线下付款');
+            StoreOrderStatus::setStatus($id,'payh5code','线下确认付款');
+            return Json::successful('修改成功!');
+        }else{
+            return Json::fail(StoreOrderModel::getErrorInfo('修改失败!'));
+        }
+    }
+
+    public function order_paid_cancle($id){
+        $res = StoreOrderModel::cancelOrderPay($id);
+        if($res){
+            event('StoreProductOrderOffline',[$id]);
+            StoreOrderStatus::setStatus($id,'payh5code','拒绝确定收款');
             return Json::successful('修改成功!');
         }else{
             return Json::fail(StoreOrderModel::getErrorInfo('修改失败!'));
@@ -683,10 +694,21 @@ class StoreOrder extends AuthController
      * @param $id
      */
     public function order_sale($id){
-        $res = StoreOrderModel::updateIsSale($id);
+        $res = StoreOrderModel::order_applysale($id);
         if($res){
             // event('StoreProductOrderOffline',[$id]);
             StoreOrderStatus::setStatus($id,'is_sale','继售订单');
+            return Json::successful('修改成功!');
+        }else{
+            return Json::fail(StoreOrderModel::getErrorInfo('修改失败!'));
+        }
+    }
+
+    public function order_sale_cancle($id){
+        $res = StoreOrderModel::order_sale_cancle($id);
+        if($res){
+            // event('StoreProductOrderOffline',[$id]);
+            StoreOrderStatus::setStatus($id,'is_sale','拒绝确定收款');
             return Json::successful('修改成功!');
         }else{
             return Json::fail(StoreOrderModel::getErrorInfo('修改失败!'));

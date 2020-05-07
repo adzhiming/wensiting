@@ -444,6 +444,23 @@ HTML;
         return $res;
     }
 
+    public static function cancelOrderPay($id)
+    {
+        $count = self::where('id', $id)->count();
+        if (!$count) return self::setErrorInfo('订单不存在');
+        $count = self::where('id', $id)->where('paid', 0)->count();
+        if (!$count) return self::setErrorInfo('订单已支付');
+        $res = self::where('id', $id)->update(['is_pay_valid' =>3]);
+        return $res;
+    }
+
+    public static function order_sale_cancle($id){
+        $count = self::where('id', $id)->count();
+        if (!$count) return self::setErrorInfo('订单不存在');
+        $res = self::where('id', $id)->update(['is_sale_valid' =>3]);
+        return $res;
+    }
+
     /**
      * 继售订单 开始
      * status 为9
@@ -455,7 +472,7 @@ HTML;
      * @param $id
      * @return $this
      */
-    public static function updateIsSale($id)
+    public static function order_applysale($id)
     {
         $count = self::where('id', $id)->count();
         if (!$count) return self::setErrorInfo('订单不存在');
@@ -468,7 +485,7 @@ HTML;
         if ($store_product_attr >= 1 ) return self::setErrorInfo('此商品订单不支持继售，不支持多规格！！！');
         if ($order['total_num'] > 1 ) return self::setErrorInfo('此商品订单不支持继售，商品数量不为一！！！');
         $product = Db::name('store_product')->where('id',$product_id)->find();
-        $is_sale_rade = Db::name('system_config')->where('menu_name','is_sale_rate')->value('value');
+        $is_sale_rade = sysConfig('is_sale_rate');;
         $product_edit = array();
         $product_edit['price'] = $product['price'] * (1+$is_sale_rade/100);
         $product_edit['vip_price'] = $product['vip_price'] * (1+$is_sale_rade/100);
@@ -484,11 +501,11 @@ HTML;
         $product_edit['order_id'] = $id;
         Db::startTrans();
         try {
-            $res = self::where('id', $id)->update(['is_sale' => $is_sale_rade, 'status' =>9,'pay_type'=>'payh5code']);
+            $res = self::where('id', $id)->update(['is_sale' => $is_sale_rade, 'is_sale_valid' => '2', 'status' =>9,'pay_type'=>'payh5code']);
             Db::name('store_product')->where('id',$product_id)->update($product_edit);
             if ($product['order_id']) {
                 $orgin_order_id = $product['order_id'];
-                $res = self::where('id', $orgin_order_id)->update([ 'status' =>3,'pay_type'=>'payh5code']);
+                $res = self::where('id', $orgin_order_id)->update([ 'status' =>3, 'is_pay_valid' =>2, 'pay_type'=>'payh5code']);
             }
             // 提交事务
             Db::commit();

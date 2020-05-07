@@ -39,6 +39,9 @@ Route::group(function () {
     Route::post('admin/order/refund', 'admin.StoreOrderController/refund')->name('adminOrderRefund');//订单退款
     Route::post('order/order_verific','order.StoreOrderController/order_verific')->name('order');//订单核销
     
+    Route::post('admin/order/order_paid_cancle', 'admin.StoreOrderController/order_paid_cancle')->name('order_paid_cancle');//订单支付申请 拒绝
+    Route::post('admin/order/payh5code', 'admin.StoreOrderController/payh5code')->name('adminOrderpayh5code');//订单支付
+    
 })->middleware(\app\http\middleware\AllowOriginMiddleware::class)->middleware(\app\http\middleware\AuthTokenMiddleware::class, true)->middleware(\app\http\middleware\CustomerMiddleware::class);
 
 //会员授权接口
@@ -99,7 +102,10 @@ Route::group(function () {
     Route::post('order/cancel', 'order.StoreOrderController/cancel')->name('orderCancel'); //订单取消
     Route::post('cart/num', 'store.StoreCartController/num')->name('cartNum'); //购物车 修改产品数量
     Route::get('cart/count', 'store.StoreCartController/count')->name('cartCount'); //购物车 获取数量
-    Route::post('order/order_issale','order.StoreOrderController/order_issale')->name('order_issale');//
+
+    Route::post('order/order_issale','order.StoreOrderController/order_issale')->name('order_issale'); //确收继售 收款
+    Route::post('order/order_ispay','order.StoreOrderController/order_ispay')->name('order_ispay');    //支付申请审核 ok
+    Route::post('order/order_applysale','order.StoreOrderController/order_applysale')->name('order_applysale');    //申请继售
 
     //订单类
     Route::post('order/confirm', 'order.StoreOrderController/confirm')->name('orderConfirm'); //订单确认

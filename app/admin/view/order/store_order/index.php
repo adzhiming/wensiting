@@ -150,13 +150,18 @@
                         {{#  if(d._status==1){ }}
                             {{# if(d.paid == 0 &&  ( d.pay_type == 'offline' ||  d.pay_type == 'payh5code' )) { }}
                                 {{#  if(d.pay_type == 'offline' ){ }}
-                                    <button class="btn btn-danger btn-xs" type="button" lay-event="order_paid">
+                                    <!-- <button class="btn btn-danger btn-xs" type="button" lay-event="order_paid">
                                         <i class="fa fa-calendar"></i> 立即支付
-                                    </button>
+                                    </button> -->
                                 {{#  }else if(d.pay_type== 'payh5code'   ){ }}
-                                    <button class="btn btn-danger btn-xs" type="button" lay-event="order_paid">
-                                        <i class="fa  fa-qrcode"></i> 确认收款
-                                    </button>
+                                    {{#  if(d.is_pay_valid == '1' ){ }}
+                                        <button class="btn btn-success btn-xs" type="button" lay-event="order_paid">
+                                            <i class="fa  fa-qrcode"></i> 确认收款
+                                        </button>
+                                        <button class="btn btn-danger btn-xs" type="button" lay-event="order_paid_cancle">
+                                            <i class="fa  fa-qrcode"></i> 拒绝确认
+                                        </button>
+                                    {{# } ;}}
                                 {{# } ;}}
                             {{# } ;}}
                             <button type="button" class="layui-btn layui-btn-xs" onclick="dropdown(this)">操作 <span class="caret"></span></button>
@@ -186,10 +191,14 @@
                             {{# if(d.shipping_type==1){ }}
                                 <button class="btn btn-primary btn-xs" type="button" onclick="$eb.createModalFrame('发送货','{:Url('order_goods')}?id={{d.id}}',{w:400,h:250})">
                                 <i class="fa fa-cart-plus"></i> 发送货</button>
-                                
-                                <button class="btn btn-warning btn-xs" type="button" lay-event="order_sale">
-                                   <i class="fa  fa-recycle"></i> 继售商品
-                                </button>
+                                {{# if(d.is_sale_valid==1){ }}
+                                    <button class="btn btn-success btn-xs" type="button" lay-event="order_sale">
+                                       <i class="fa  fa-recycle"></i> 同意申请继售
+                                    </button>
+                                    <button class="btn btn-danger btn-xs" type="button" lay-event="order_sale_cancle">
+                                       <i class="fa  fa-recycle"></i> 拒绝申请继售
+                                    </button>
+                                 {{# } }}
                             {{# } }}
                             <button type="button" class="layui-btn layui-btn-xs" onclick="dropdown(this)">操作 <span class="caret"></span></button>
                             <ul class="layui-nav-child layui-anim layui-anim-upbit">
@@ -419,7 +428,7 @@
     layList.tool(function (event,data,obj) {
         switch (event) {
             case 'order_paid':
-                var url =layList.U({c:'order.store_order',a:'offline',p:{id:data.id}});
+                var url =layList.U({c:'order.store_order',a:'payh5code',p:{id:data.id}});
                 $eb.$swal('delete',function(){
                     $eb.axios.get(url).then(function(res){
                         if(res.status == 200 && res.data.code == 200) {
@@ -430,6 +439,19 @@
                         $eb.$swal('error',err);
                     });
                 },{'title':'您确定要修改支付状态吗？','text':'修改后将无法恢复,请谨慎操作！','confirm':'是的，我要修改'})
+                break;
+            case 'order_paid_cancle':
+                var url =layList.U({c:'order.store_order',a:'order_paid_cancle',p:{id:data.id}});
+                $eb.$swal('delete',function(){
+                    $eb.axios.get(url).then(function(res){
+                        if(res.status == 200 && res.data.code == 200) {
+                            $eb.$swal('success',res.data.msg);
+                        }else
+                            return Promise.reject(res.data.msg || '修改失败')
+                    }).catch(function(err){
+                        $eb.$swal('error',err);
+                    });
+                },{'title':'确定拒绝该支付申请吗？','text':'拒绝后,如需确认需要用户重新申请！','confirm':'是的，我要拒绝'})
                 break;
             case 'order_sale':
                 var url =layList.U({c:'order.store_order',a:'order_sale',p:{id:data.id}});
@@ -442,7 +464,20 @@
                     }).catch(function(err){
                         $eb.$swal('error',err);
                     });
-                },{'title':'您确定要继售该订单？','text':'修改后将无法恢复,请谨慎操作！','confirm':'是的，我要修改'})
+                },{'title':'您确定通过该继售该订单申请？','text':'修改后将无法恢复,请谨慎操作！','confirm':'同意'})
+                break;
+            case 'order_sale_cancle':
+                var url =layList.U({c:'order.store_order',a:'order_sale_cancle',p:{id:data.id}});
+                $eb.$swal('delete',function(){
+                    $eb.axios.get(url).then(function(res){
+                        if(res.status == 200 && res.data.code == 200) {
+                            $eb.$swal('success',res.data.msg);
+                        }else
+                            return Promise.reject(res.data.msg || '修改失败')
+                    }).catch(function(err){
+                        $eb.$swal('error',err);
+                    });
+                },{'title':'您确定拒绝该继售该订单申请？','text':'拒绝后,如需确认需要用户重新申请！','confirm':'拒绝'})
                 break;
             case 'marke':
                 var url =layList.U({c:'order.store_order',a:'remark'}),
