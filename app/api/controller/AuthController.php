@@ -188,10 +188,10 @@ class AuthController
 
         //验证验证码
         $verifyCode = CacheService::get('code_'.$phone);
-        if(!$verifyCode) return app('json')->fail('请先获取验证码');
+        // if(!$verifyCode) return app('json')->fail('请先获取验证码');
             
         $verifyCode = substr($verifyCode, 0, 4);
-        if($verifyCode != $captcha) return app('json')->fail('验证码错误');
+        // if($verifyCode != $captcha) return app('json')->fail('验证码错误');
             
 
         //数据库查询
@@ -210,6 +210,8 @@ class AuthController
 
         if ($token) {
             event('UserLogin', [$user, $token]);
+            Session::set('uuid',$user['uid']);
+            Session::save();
             return app('json')->success('登录成功', ['token' => $token->token, 'expires_time' => $token->expires_time]);
         } else
             return app('json')->fail('登录失败');

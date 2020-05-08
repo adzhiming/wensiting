@@ -214,6 +214,7 @@ Route::group(function () {
 
     //分享配置
     Route::get('share', 'PublicController/share')->name('share');//分享配置
+    Route::get('setextenduser', 'PublicController/setextenduser')->name('setextenduser');// 设置推广用户
 
     //优惠券
     Route::get('coupons', 'store.StoreCouponsController/lst')->name('couponsList'); //可领取优惠券列表

@@ -16,7 +16,7 @@ use crmeb\services\UploadService;
 use crmeb\services\UtilService;
 use crmeb\services\workerman\ChannelService;
 use think\facade\Cache;
-
+use think\facade\Session;
 /**
  * 公共类
  * Class PublicController
@@ -216,6 +216,13 @@ class PublicController
         } catch (\Exception $e) {
             return app('json')->fail($e->getMessage());
         }
+    }
+
+    public function setextenduser(Request $request){
+        $extenduid = $request->id;
+        Session::set('extenduid',$extenduid);
+        Session::save();
+        return app('json')->successful(1);
     }
 
 

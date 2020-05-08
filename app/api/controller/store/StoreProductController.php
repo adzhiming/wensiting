@@ -13,6 +13,7 @@ use crmeb\services\GroupDataService;
 use crmeb\services\QrcodeService;
 use crmeb\services\SystemConfigService;
 use crmeb\services\UtilService;
+use think\facade\Session;
 
 /**
  * 商品类
@@ -107,7 +108,12 @@ class StoreProductController
         $siteUrl = sysConfig('site_url');
         $storeInfo['image'] = UtilService::setSiteUrl($storeInfo['image'], $siteUrl);
         $storeInfo['image_base'] = UtilService::setSiteUrl($storeInfo['image'], $siteUrl);
-        $storeInfo['code_base'] = QrcodeService::getWechatQrcodePath($id . '_product_detail_wap.jpg', '/detail/' . $id);
+        $uuid =  Session::get('uuid') ?Session::get('uuid') : '' ;
+        $shareUser= '';
+        if ($uuid) {
+            $shareUser = '?uuid='.$uuid;
+        }
+        $storeInfo['code_base'] = QrcodeService::getWechatQrcodePath($id.$uuid . '_product_detail_wap.jpg', '/detail/' . $id.$shareUser);
         $uid = $request->uid();
         $data['uid'] = $uid;
         //替换windows服务器下正反斜杠问题导致图片无法显示

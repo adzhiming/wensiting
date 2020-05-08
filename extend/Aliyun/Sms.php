@@ -11,9 +11,8 @@ class Sms
         
         $params = array ();
         $code = self::generate_verify_code(4);
-
-        $accessKeyId = "";
-        $accessKeySecret = " ";
+        $accessKeyId = "yyVZJ2khZOIL6JZz";
+        $accessKeySecret = "plJ9TZzpDMX1fHuARQrugXRsftWAm6";
         $token = '123f4dc3ffdd769dd95d2ed1a3290911';
 
         // fixme 必填: 短信接收号码
@@ -40,18 +39,24 @@ class Sms
         $helper = new SignatureHelper();
 
         // 此处可能会抛出异常，注意catch
-        $content = $helper->request(
-            $accessKeyId,
-            $accessKeySecret,
-            "dysmsapi.aliyuncs.com",
-            array_merge($params, array(
-                "RegionId" => "cn-hangzhou",
-                "Action" => "SendSms",
-                "Version" => "2017-05-25",
-            ))
-            // fixme 选填: 启用https
-            // ,true
-        ); 
+        try {
+            $content = $helper->request(
+                $accessKeyId,
+                $accessKeySecret,
+                "dysmsapi.aliyuncs.com",
+                array_merge($params, array(
+                    "RegionId" => "cn-hangzhou",
+                    "Action" => "SendSms",
+                    "Version" => "2017-05-25",
+                ))
+                // fixme 选填: 启用https
+                // ,true
+            ); 
+        } catch (ClientException $e) {
+            echo $e->getErrorMessage() . PHP_EOL;
+        } catch (ServerException $e) {
+            echo $e->getErrorMessage() . PHP_EOL;
+        }
         $rs = (array)$content;
         if ($rs && isset($rs["Code"]) && $rs["Code"]== 'OK'){ 
             return $code;
