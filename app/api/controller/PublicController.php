@@ -218,12 +218,18 @@ class PublicController
         }
     }
 
-    public function setextenduser(Request $request){
+    public function extenduser(Request $request){
         $extenduid = $request->id;
         Session::set('extenduid',$extenduid);
         Session::save();
         return app('json')->successful(1);
     }
+		
+		public function getextenduser(Request $request){
+		    $ret = session('extenduid');
+				echo 222;echo $ret; die();
+		    return app('json')->successful($ret);
+		}
 
 
 }

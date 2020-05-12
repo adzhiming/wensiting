@@ -15,6 +15,12 @@
     INSERT INTO `crmeb`.`eb_system_config` 
     ( `menu_name`, `type`, `input_type`, `config_tab_id`, `parameter`, `upload_type`, `required`, `width`, `high`, `value`, `info`, `desc`, `sort`, `status`) VALUES 
     ( 'is_sale_point', 'text', '', '1', '', '1', '', '0', '0', '10', '继售比例分成', '继续销售的比例百分比的分成 填10为订单价格的10%的10%', '0', '1');
+		
+		用户推广比例
+		INSERT INTO `crmeb`.`eb_system_config`
+		( `menu_name`, `type`, `input_type`, `config_tab_id`, `parameter`, `upload_type`, `required`, `width`, `high`, `value`, `info`, `desc`, `sort`, `status`) VALUES 
+		( 'is_sale_pid_rate', 'text', '', '1', '', '1', '', '0', '0', '3', '用户推广比例', '用户推广比例 通过分享图片的新用户获得n%分佣比例 单位千分之一', '0', '1');
+		
     用户表增加收款码
     ALTER TABLE `eb_user` ADD COLUMN `h5_pay_code`  varchar(255) NULL AFTER `login_type`;
 

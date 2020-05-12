@@ -17,6 +17,7 @@ use think\exception\ValidateException;
 use think\facade\Queue;
 use think\facade\Session;
 use Aliyun\Sms;
+use think\facade\Db;
 
 /**微信小程序授权类
  * Class AuthController
@@ -177,7 +178,7 @@ class AuthController
      */
     public function mobile(Request $request)
     {
-        list($phone, $captcha, $spread) = UtilService::postMore([['phone',''], ['captcha',''], ['spread',0]],$request, true);
+        list($phone, $captcha, $spread,$pid) = UtilService::postMore([['phone',''], ['captcha',''], ['spread',0],['uuid',0]],$request, true);
 
         //验证手机号
         try {
@@ -188,17 +189,24 @@ class AuthController
 
         //验证验证码
         $verifyCode = CacheService::get('code_'.$phone);
-        // if(!$verifyCode) return app('json')->fail('请先获取验证码');
+        if(!$verifyCode) return app('json')->fail('请先获取验证码');
             
         $verifyCode = substr($verifyCode, 0, 4);
-        // if($verifyCode != $captcha) return app('json')->fail('验证码错误');
-            
-
+        if($verifyCode != $captcha) return app('json')->fail('验证码错误');
+           
         //数据库查询
         $user = User::where('account', $phone)->find();
         if (!$user) {
             User::register($phone, '123123', $spread);
             $user = User::where('account', $phone)->find();
+						if($pid){
+							$ck = Db::table('eb_user')->where('uid',$pid)->value('uid');
+							if($ck){
+								$user->spread_uid = $pid;
+								$user->spread_time = time();
+								$user->save();
+							}
+						}
         }
         if (!$user->status)
             return app('json')->fail('已被禁止，请联系管理员');
