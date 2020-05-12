@@ -168,6 +168,10 @@ Route::group(function () {
     Route::get('category', 'store.CategoryController/category')->name('category');
     //产品类
     Route::post('image_base64', 'PublicController/get_image_base64')->name('getImageBase64');// 获取图片base64
+		Route::get('extenduser', 'PublicController/extenduser')->name('extenduser');// 获取图片base64
+		Route::get('userRefundAppeal', 'PublicController/extenduser')->name('extenduser');// 获取图片base64
+		Route::get('getextenduser', 'PublicController/getextenduser')->name('getextenduser');// 获取图片base64
+		
     Route::get('product/detail/:id/[:type]', 'store.StoreProductController/detail')->name('detail');//产品详情
     Route::get('groom/list/:type', 'store.StoreProductController/groom_list')->name('groomList');//获取首页推荐不同类型产品的轮播图和产品
     Route::get('products', 'store.StoreProductController/lst')->name('products');//产品列表

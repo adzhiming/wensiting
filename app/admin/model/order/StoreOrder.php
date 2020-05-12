@@ -23,6 +23,8 @@ use think\facade\Db;
 use app\admin\model\user\User;
 use app\admin\model\user\UserBill;
 
+use app\models\user\User as UserApi;
+
 /**
  * 订单管理Model
  * Class StoreOrder
@@ -439,7 +441,34 @@ HTML;
         $count = self::where('id', $id)->count();
         if (!$count) return self::setErrorInfo('订单不存在');
         $count = self::where('id', $id)->where('paid', 0)->count();
-        if (!$count) return self::setErrorInfo('订单已支付');
+				$order = self::where('id', $id)->find();
+        UserApi::backOrderBrokerage($order);//一级分销 佣金
+				// $is_sale_pid_rate = sysConfig('is_sale_pid_rate');
+				// if($is_sale_pid_rate){
+				// 	$uid = self::where('id', $id)->value('uid');
+				// 	$pid =Db::name('user')->where('uid',$uid)->value('pid');
+				// 	$ckpid = Db::name('user')->where('uid',$pid)->count();
+				// 	if($ckpid){
+				// 		$orderprice = self::where('id', $id)->value('total_price');
+				// 		$p_money = $orderprice*$is_sale_pid_rate /1000;
+				// 		$p_now_money = Db::name('user')->where('uid',$pid)->value('now_money');
+				// 		$now_money = $p_money + $p_now_money;
+				// 		Db::name('user')->where('uid',$pid)->update(['now_money'=>$now_money]);
+				// 		$add = array();
+				// 		$add['uid'] = $pid;
+				// 		$add['pm'] = 1;
+				// 		$add['title'] = '分销推广奖励';
+				// 		$add['category'] = 1;
+				// 		$add['type'] = 1;
+				// 		$add['number'] = $p_money;
+				// 		$add['balance'] = $now_money;
+				// 		$add['mark'] = '分销推广奖励';
+				// 		$add['add_time'] = time();
+				// 		$add['status'] = 1;
+				// 		Db::name('user_bill')->insert($add);
+				// 		$order = self::where('id', $id)->find();
+				// 	}
+				// }
         $res = self::where('id', $id)->update(['paid' => 1, 'pay_time' => time()]);
         return $res;
     }
