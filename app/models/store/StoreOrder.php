@@ -487,7 +487,7 @@ class StoreOrder extends BaseModel
     }
 
     /**
-     * 确收继售
+     * 确收寄售
      * @param string order_id 订单id
      * @param $uid
      * @return bool
@@ -520,15 +520,15 @@ class StoreOrder extends BaseModel
     {
         $order = self::where('id', $id)->find();
         if (!$order) return self::setErrorInfo('订单不存在');
-        if ($order['is_sale'] >0 ) return self::setErrorInfo('订单已继售');
+        if ($order['is_sale'] >0 ) return self::setErrorInfo('订单已寄售');
         $h5_pay_code = Db::name('user')->where('uid',$uid)->value('h5_pay_code');
         if (!$h5_pay_code  ) return self::setErrorInfo('请设置自己的收款码，再操作');
         $product_id = Db::name('store_order_cart_info')->where('oid',$id)->value('product_id');
         $store_product_attr = Db::name('store_product_attr_value')->where('product_id',$product_id)->count();
-        if ($store_product_attr >= 1 ) return self::setErrorInfo('此商品订单不支持继售，不支持多规格！！！');
-        if ($order['total_num'] > 1 ) return self::setErrorInfo('此商品订单不支持继售，商品数量不为一！！！');
+        if ($store_product_attr >= 1 ) return self::setErrorInfo('此商品订单不支持寄售，不支持多规格！！！');
+        if ($order['total_num'] > 1 ) return self::setErrorInfo('此商品订单不支持寄售，商品数量不为一！！！');
         $product = Db::name('store_product')->where('id',$product_id)->find();
-        if($product['uuid']) return self::setErrorInfo('该商品已经存在继售');
+        if($product['uuid']) return self::setErrorInfo('该商品已经存在寄售');
         // $is_sale_rade = sysConfig('is_sale_rate');;
         // $product_edit = array();
         // $product_edit['price'] = $product['price'] * (1+$is_sale_rade/100);
@@ -1115,8 +1115,8 @@ class StoreOrder extends BaseModel
             $status['_class'] = 'state-ytk';
         }else if ($order['status'] == 9) {
             $status['_type'] = 9;
-            $status['_title'] = '继售';
-            $status['_msg'] = '订单商品继售中';
+            $status['_title'] = '寄售';
+            $status['_msg'] = '订单商品寄售中';
             $status['_class'] = 'state-ytk';
         }
         if (isset($order['pay_type']))
@@ -1170,7 +1170,7 @@ class StoreOrder extends BaseModel
             return $model->where('paid', 1)->where('refund_status', 2);
         else if ($status == -3)//退款
                     return $model->where('paid', 1)->where('refund_status', 2);
-        else if ($status == 9)//继售
+        else if ($status == 9)//寄售
             return $model->where('is_sale', '>','0')->where('paid', 1)->where('pay_type','payh5code')->where('status','9');
 //        else if($status == 11){
 //            return $model->where('order_id','IN',implode(',',$orderId));
@@ -1364,6 +1364,10 @@ class StoreOrder extends BaseModel
         }
         foreach ($list as $k => $order) {
             $list[$k] = self::tidyOrder($order, true);
+						$list[$k]['is_sale_rate'] = sys_config('is_sale_rate');
+						$list[$k]['is_sale_point'] = sys_config('is_sale_point');
+						$list[$k]['is_sale_pid_rate'] = sys_config('is_sale_pid_rate');
+						$list[$k]['sys_customer_code'] = sys_config('sys_customer_code');
             if ($list[$k]['_status']['_type'] == 3) {
                 foreach ($order['cartInfo'] ?: [] as $key => $product) {
                     $list[$k]['cartInfo'][$key]['is_reply'] = StoreProductReply::isReply($product['unique'], 'product');
@@ -1448,7 +1452,7 @@ class StoreOrder extends BaseModel
         $data['complete_count'] = self::statusByWhere(4, $uid)->where('is_del', 0)->where('uid', $uid)->count();
         //订单退款
         $data['refund_count'] = self::statusByWhere(-1, $uid)->where('is_del', 0)->where('uid', $uid)->count();
-        //继售数量
+        //寄售数量
         $data['is_sale_count'] = self::statusByWhere(9, $uid)->where('is_del', 0)->where('uid', $uid)->count();
         return $data;
     }

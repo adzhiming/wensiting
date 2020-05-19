@@ -121,7 +121,7 @@ class StoreOrder extends BaseModel
                 $item['pink_name'] = '[砍价订单]';
                 $item['color'] = '#12c5e9';
             } elseif ($item['is_sale']) {
-                $item['pink_name'] = '[继售订单]';
+                $item['pink_name'] = '[寄售订单]';
                 $item['color'] = '#12c5e9';
             } else {
                 if ($item['shipping_type'] == 1) {
@@ -176,7 +176,7 @@ class StoreOrder extends BaseModel
             } else if ($item['paid'] == 1 && $item['status'] == 3 && $item['refund_status'] == 0) {
                 $item['status_name'] = '已完成';
             } else if ( $item['status'] == 9 ) {
-                $item['status_name'] = '继售中';
+                $item['status_name'] = '寄售中';
                 $item['_status'] = 9;
             } else if ($item['paid'] == 1 && $item['refund_status'] == 1) {
                 $refundReasonTime = date('Y-m-d H:i', $item['refund_reason_time']);
@@ -227,6 +227,11 @@ HTML;
                 $item['_status'] = 7;
 
             }
+						$item['is_sale_rate'] = sys_config('is_sale_rate');
+						$item['is_sale_point'] = sys_config('is_sale_point');
+						$item['is_sale_pid_rate'] = sys_config('is_sale_pid_rate');
+						$item['sys_customer_code'] = sys_config('sys_customer_code');
+						
         }
         if (isset($where['excel']) && $where['excel'] == 1) {
             self::SaveExcel($data);
@@ -375,7 +380,7 @@ HTML;
                     $item['pink_name'] = '[砍价订单]';
                     $item['color'] = '#12c5e9';
                 } elseif ($item['is_sale']) {
-                    $item['pink_name'] = '[继售订单]';
+                    $item['pink_name'] = '[寄售订单]';
                     $item['color'] = '#12c5e9';
                 } else {
                     $item['pink_name'] = '[普通订单]';
@@ -432,7 +437,7 @@ HTML;
     }
 
     /**
-     * 线下付款
+     * TODO 线下付款
      * @param $id
      * @return $this
      */
@@ -441,7 +446,7 @@ HTML;
         $count = self::where('id', $id)->count();
         if (!$count) return self::setErrorInfo('订单不存在');
         $count = self::where('id', $id)->where('paid', 0)->count();
-				$order = self::where('id', $id)->find();
+	    $order = self::where('id', $id)->find();
         UserApi::backOrderBrokerage($order);//一级分销 佣金
 				// $is_sale_pid_rate = sysConfig('is_sale_pid_rate');
 				// if($is_sale_pid_rate){
@@ -491,12 +496,12 @@ HTML;
     }
 
     /**
-     * 继售订单 开始
+     * 寄售订单 开始
      * status 为9
      * is_sale 为1 
      * 商品库存回归 
      * 且商品绑定用户id
-     * 有规格的商品不能继售
+     * 有规格的商品不能寄售
      * 记录订单号
      * @param $id
      * @return $this
@@ -506,13 +511,13 @@ HTML;
         $count = self::where('id', $id)->count();
         if (!$count) return self::setErrorInfo('订单不存在');
         $count = self::where('id', $id)->where('is_sale', '>', 0)->count();
-        if ($count) return self::setErrorInfo('订单已继售');
+        if ($count) return self::setErrorInfo('订单已寄售');
 
         $order = self::where('id', $id)->find();
         $product_id = Db::name('store_order_cart_info')->where('oid',$id)->value('product_id');
         $store_product_attr = Db::name('store_product_attr_value')->where('product_id',$product_id)->count();
-        if ($store_product_attr >= 1 ) return self::setErrorInfo('此商品订单不支持继售，不支持多规格！！！');
-        if ($order['total_num'] > 1 ) return self::setErrorInfo('此商品订单不支持继售，商品数量不为一！！！');
+        if ($store_product_attr >= 1 ) return self::setErrorInfo('此商品订单不支持寄售，不支持多规格！！！');
+        if ($order['total_num'] > 1 ) return self::setErrorInfo('此商品订单不支持寄售，商品数量不为一！！！');
         $product = Db::name('store_product')->where('id',$product_id)->find();
         $is_sale_rade = sysConfig('is_sale_rate');;
         $product_edit = array();
@@ -606,7 +611,7 @@ HTML;
             if ($where['combination_id'] == '砍价订单') {
                 $model = $model->where($aler . 'bargain_id', ">", 0);
             }
-            if ($where['combination_id'] == '继售订单') {
+            if ($where['combination_id'] == '寄售订单') {
                 $model = $model->where($aler . 'is_sale', "=", 1);
             }
         }

@@ -189,10 +189,10 @@ class AuthController
 
         //验证验证码
         $verifyCode = CacheService::get('code_'.$phone);
-        if(!$verifyCode) return app('json')->fail('请先获取验证码');
+        // if(!$verifyCode) return app('json')->fail('请先获取验证码');
             
         $verifyCode = substr($verifyCode, 0, 4);
-        if($verifyCode != $captcha) return app('json')->fail('验证码错误');
+        // if($verifyCode != $captcha) return app('json')->fail('验证码错误');
            
         //数据库查询
         $user = User::where('account', $phone)->find();
@@ -307,11 +307,9 @@ class AuthController
 
         //验证验证码
         $verifyCode = CacheService::get('code_'.$phone);
-        if(!$verifyCode)
-            return app('json')->fail('请先获取验证码');
+        if(!$verifyCode) return app('json')->fail('请先获取验证码');
         $verifyCode = substr($verifyCode, 0, 6);
-        if($verifyCode != $captcha)
-            return app('json')->fail('验证码错误');
+        if($verifyCode != $captcha) return app('json')->fail('验证码错误');
 
         $userInfo = User::where('uid',$request->uid())->find();
         $userPhone = $userInfo->phone;

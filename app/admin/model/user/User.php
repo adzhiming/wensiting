@@ -173,6 +173,10 @@ class User extends BaseModel
                     $item['h5_pay_code'] = '/uploads/pay-code-demo.png';
                 }
                 $item['vip_name'] = false;
+								$item['is_sale_rate'] = sys_config('is_sale_rate');
+								$item['is_sale_point'] = sys_config('is_sale_point');
+								$item['is_sale_pid_rate'] = sys_config('is_sale_pid_rate');
+								$item['sys_customer_code'] = sys_config('sys_customer_code');
                 $levelinfo = UserLevel::where('uid', $item['uid'])->where('level_id',$item['level'])->where('is_del', 0)->order('grade desc')->field('level_id,is_forever,valid_time')->find();
                 if ($levelinfo) {
                     if ($levelinfo['is_forever']) $item['vip_name'] = SystemUserLevel::where('id', $levelinfo['level_id'])->value('name');

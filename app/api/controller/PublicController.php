@@ -87,8 +87,15 @@ class PublicController
      */
     public function menu_user(Request $request)
     {
-        $menusInfo = GroupDataService::getData('routine_my_menus') ?? [];
+        $menusInfo_base = GroupDataService::getData('routine_my_menus') ?? [];
         $user = $request->user();
+				$menusInfo = array();
+				foreach ($menusInfo_base as $key => &$value) {
+					if(in_array($value['name'],['我的推广','地址信息','我的收藏','联系客服'])){
+						$menusInfo[] = $value;
+					}
+				}
+				// \var_dump($menusInfo);die;
         $vipOpen = sys_config('vip_open');
         $vipOpen = is_string($vipOpen) ? (int)$vipOpen : $vipOpen;
         foreach ($menusInfo as $key => &$value) {

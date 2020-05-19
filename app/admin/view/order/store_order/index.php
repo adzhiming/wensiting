@@ -193,10 +193,10 @@
                                 <i class="fa fa-cart-plus"></i> 发送货</button>
                                 {{# if(d.is_sale_valid==1){ }}
                                     <button class="btn btn-success btn-xs" type="button" lay-event="order_sale">
-                                       <i class="fa  fa-recycle"></i> 同意申请继售
+                                       <i class="fa  fa-recycle"></i> 同意申请寄售
                                     </button>
                                     <button class="btn btn-danger btn-xs" type="button" lay-event="order_sale_cancle">
-                                       <i class="fa  fa-recycle"></i> 拒绝申请继售
+                                       <i class="fa  fa-recycle"></i> 拒绝申请寄售
                                     </button>
                                  {{# } }}
                             {{# } }}
@@ -455,6 +455,8 @@
                 break;
             case 'order_sale':
                 var url =layList.U({c:'order.store_order',a:'order_sale',p:{id:data.id}});
+								console.log(data);
+								var tipMsg ="确定收到"+parseFloat(data.pay_price*data.is_sale_point/100).toFixed(2)+"手续费，通过该订单的寄售申请？"
                 $eb.$swal('delete',function(){
                     $eb.axios.get(url).then(function(res){
                         if(res.status == 200 && res.data.code == 200) {
@@ -464,7 +466,7 @@
                     }).catch(function(err){
                         $eb.$swal('error',err);
                     });
-                },{'title':'您确定通过该继售该订单申请？','text':'修改后将无法恢复,请谨慎操作！','confirm':'同意'})
+                },{'title':tipMsg,'text':'修改后将无法恢复,请谨慎操作！','confirm':'同意'})
                 break;
             case 'order_sale_cancle':
                 var url =layList.U({c:'order.store_order',a:'order_sale_cancle',p:{id:data.id}});
@@ -477,7 +479,7 @@
                     }).catch(function(err){
                         $eb.$swal('error',err);
                     });
-                },{'title':'您确定拒绝该继售该订单申请？','text':'拒绝后,如需确认需要用户重新申请！','confirm':'拒绝'})
+                },{'title':'您确定拒绝该寄售该订单申请？','text':'拒绝后,如需确认需要用户重新申请！','confirm':'拒绝'})
                 break;
             case 'marke':
                 var url =layList.U({c:'order.store_order',a:'remark'}),
@@ -600,7 +602,7 @@
                     {name: '拼团订单', value: 2,count:orderCount.pink},
                     {name: '秒杀订单', value: 3,count:orderCount.seckill},
                     {name: '砍价订单', value: 4,count:orderCount.bargain},
-                    {name: '继售订单', value: 5,count:orderCount.is_sale},
+                    {name: '寄售订单', value: 5,count:orderCount.is_sale},
                 ],
                 orderStatus: [
                     {name: '全部', value: ''},
@@ -613,7 +615,7 @@
                     {name: '退款中', value: -1,count:orderCount.tk,class:true},
                     {name: '已退款', value: -2,count:orderCount.yt},
                     {name: '已删除', value: -4,count:orderCount.del},
-                    {name: '继售', value: 6,count:orderCount.sale},
+                    {name: '寄售', value: 6,count:orderCount.sale},
                 ],
                 dataList: [
                     {name: '全部', value: ''},

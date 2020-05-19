@@ -62,7 +62,18 @@ class StoreProduct extends BaseModel
                     ->where('so.is_del','0')
                     ->where('sc.product_id',$ret['id'])
                     ->count();
-                $ret['is_sale'] = $ck;
+            $ret['is_sale'] = $ck;
+						//购物车
+						$isCart = Db::table('eb_store_cart')
+											->where('is_pay','0')
+											->where('is_del','0')
+											->where('is_new','0')
+											->where('product_id',$ret['id'])
+											->count();
+						if($isCart){
+							$ret['is_sale'] = 1;
+						}
+								
             return $ret;
         } 
         else return false;
@@ -279,6 +290,17 @@ class StoreProduct extends BaseModel
                     ->where('sc.product_id',$value->id)
                     ->count();
                 $value->is_sale = $ck;
+								//购物车
+								$isCart = Db::table('eb_store_cart')
+													->where('is_pay','0')
+													->where('is_del','0')
+													->where('is_new','0')
+													->where('product_id',$value->id)
+													->count();
+								if($isCart){
+									$value->is_sale = 1;
+								}
+								
             }
         }
         return $data;

@@ -123,6 +123,7 @@ class Images extends AuthController
      * @param $att_id
      */
     public function deleteimganddata($att_id){
+		if (!$att_id) return false;
         $attinfo = SystemAttachmentModel::get($att_id)->toArray();
         if($attinfo){
             if($attinfo['image_type'] == 1){

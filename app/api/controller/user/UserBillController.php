@@ -136,6 +136,14 @@ class UserBillController
         return app('json')->successful(['count' => $count]);
     }
 
+		/**
+		 * 客服二维码
+		 */
+		public function spread_customer(Request $request){
+			
+			$customer = sys_config('sys_customer_code');
+			return app('json')->successful($customer);
+		}
 
     /**
      * 分销二维码海报生成
@@ -233,6 +241,7 @@ class UserBillController
             } else if ($type == 2) {
                 //公众号
                 $name = $user['uid'] . '_' . $user['is_promoter'] . '_user_wap.jpg';
+                
                 $imageInfo = SystemAttachment::getInfo($name, 'name');
                 //检测远程文件是否存在
                 if (isset($imageInfo['att_dir']) && strstr($imageInfo['att_dir'], 'http') !== false && UtilService::CurlFileExist($imageInfo['att_dir']) === false) {

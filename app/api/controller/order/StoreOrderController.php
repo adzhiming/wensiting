@@ -621,7 +621,7 @@ class StoreOrderController
 
 
     /**
-     * 确收继售
+     * 确收寄售
      * @param Request $request
      * @return mixed
      * @throws \think\db\exception\DataNotFoundException

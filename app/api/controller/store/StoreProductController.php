@@ -168,7 +168,10 @@ class StoreProductController
      */
     public function paycode(Request $request, $id, $type = 0)
     {
-        $data = StoreProduct::getPaycode($id);;
+        $data = StoreProduct::getPaycode($id);
+				if(!$data){
+					$data = sys_config('h5_pay_code');
+				}
         return app('json')->successful($data);
     }
 
@@ -181,7 +184,10 @@ class StoreProductController
      */
     public function paycodebyorder(Request $request, $id, $type = 0)
     {
-        $data = StoreProduct::paycodebyorder($id);;
+        $data = StoreProduct::paycodebyorder($id);
+				if(!$data){
+					$data = sys_config('h5_pay_code');
+				}
         return app('json')->successful($data);
     }
     
