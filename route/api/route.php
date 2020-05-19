@@ -1,4 +1,4 @@
-<?php
+x<?php
 
 use think\facade\Route;
 //账号密码登录
@@ -103,9 +103,9 @@ Route::group(function () {
     Route::post('cart/num', 'store.StoreCartController/num')->name('cartNum'); //购物车 修改产品数量
     Route::get('cart/count', 'store.StoreCartController/count')->name('cartCount'); //购物车 获取数量
 
-    Route::post('order/order_issale','order.StoreOrderController/order_issale')->name('order_issale'); //确收继售 收款
+    Route::post('order/order_issale','order.StoreOrderController/order_issale')->name('order_issale'); //确收寄售 收款
     Route::post('order/order_ispay','order.StoreOrderController/order_ispay')->name('order_ispay');    //支付申请审核 ok
-    Route::post('order/order_applysale','order.StoreOrderController/order_applysale')->name('order_applysale');    //申请继售
+    Route::post('order/order_applysale','order.StoreOrderController/order_applysale')->name('order_applysale');    //申请寄售
 
     //订单类
     Route::post('order/confirm', 'order.StoreOrderController/confirm')->name('orderConfirm'); //订单确认
@@ -146,7 +146,9 @@ Route::group(function () {
     Route::get('spread/commission/:type', 'user.UserBillController/spread_commission')->name('spreadCommission');//推广佣金明细
     Route::get('spread/count/:type', 'user.UserBillController/spread_count')->name('spreadCount');//推广 佣金 3/提现 4 总和
     Route::get('spread/banner', 'user.UserBillController/spread_banner')->name('spreadBanner');//推广分销二维码海报生成
-    Route::get('integral/list', 'user.UserBillController/integral_list')->name('integralList');//积分记录
+    Route::get('spread/customer', 'user.UserBillController/spread_customer')->name('spreadCustomer');//客服二维码
+    
+		Route::get('integral/list', 'user.UserBillController/integral_list')->name('integralList');//积分记录
     //提现类
     Route::get('extract/bank', 'user.UserExtractController/bank')->name('extractBank');//提现银行/提现最低金额
     Route::post('extract/cash', 'user.UserExtractController/cash')->name('extractCash');//提现申请
