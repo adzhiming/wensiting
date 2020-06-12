@@ -695,12 +695,12 @@ class StoreOrder extends AuthController
      */
     public function order_sale($id){
         $res = StoreOrderModel::order_applysale($id);
-        if($res){
+        if($res['code'] == 0){
             // event('StoreProductOrderOffline',[$id]);
             StoreOrderStatus::setStatus($id,'is_sale','寄售订单');
             return Json::successful('修改成功!');
         }else{
-            return Json::fail(StoreOrderModel::getErrorInfo('修改失败!'));
+            return Json::fail(StoreOrderModel::getErrorInfo($res['msg']));
         }
     }
 

@@ -53,13 +53,22 @@ class PublicController
         $info['bastList'] = StoreProduct::getBestProduct('id,image,store_name,cate_id,price,ot_price,IFNULL(sales,0) + IFNULL(ficti,0) as sales,unit_name', (int)$bastNumber, $request->uid(), false);//TODO 精品推荐个数
         $info['firstList'] = StoreProduct::getNewProduct('id,image,store_name,cate_id,price,unit_name,IFNULL(sales,0) + IFNULL(ficti,0) as sales', (int)$firstNumber, $request->uid(), false);//TODO 首发新品个数
         $info['bastBanner'] = GroupDataService::getData('routine_home_bast_banner') ?? [];//TODO 首页精品推荐图片
-        $benefit = StoreProduct::getBenefitProduct('id,image,store_name,cate_id,price,ot_price,stock,unit_name', 3);//TODO 首页促销单品
+        $benefit = StoreProduct::getBenefitProduct('id,image,store_name,cate_id,price,ot_price,stock,unit_name', 15);//TODO 首页促销单品
         $lovely = [];//GroupDataService::getData('routine_home_new_banner') ?: [];//TODO 首发新品顶部图
         $likeInfo = [];//StoreProduct::getHotProduct('id,image,store_name,cate_id,price,unit_name', 3);//TODO 热门榜单 猜你喜欢
         $couponList = StoreCouponIssue::getIssueCouponList($request->uid(), 3);
         $subscribe = WechatUser::where('uid', $request->uid() ?? 0)->value('subscribe') ? true : false;
         $newGoodsBananr = sys_config('new_goods_bananr');
         return app('json')->successful(compact('banner', 'menus', 'roll', 'info', 'activity', 'lovely', 'benefit', 'likeInfo', 'logoUrl', 'couponList', 'site_name', 'subscribe','newGoodsBananr'));
+    }
+
+    public function getGoodsStatus(Request $request){
+        $benefit = StoreProduct::getBenefitProduct('id,image,store_name,cate_id,price,ot_price,stock,unit_name', 15);//TODO 首页促销单品
+        StoreProduct::delUnPayOrder();//TODO 删除超时订单
+        StoreProduct::autoSellOut();//TODO 自动售罄操作
+        $lovely = [];//GroupDataService::getData('routine_home_new_banner') ?: [];//TODO 首发新品顶部图
+        $likeInfo = [];//StoreProduct::getHotProduct('id,image,store_name,cate_id,price,unit_name', 3);//TODO 热门榜单 猜你喜欢
+        return app('json')->successful(compact( 'benefit', 'lovely','likeInfo'));
     }
 
     /**
@@ -234,7 +243,7 @@ class PublicController
 		
 		public function getextenduser(Request $request){
 		    $ret = session('extenduid');
-				echo 222;echo $ret; die();
+				///echo 222;echo $ret; die();
 		    return app('json')->successful($ret);
 		}
 

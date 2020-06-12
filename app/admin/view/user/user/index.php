@@ -207,8 +207,12 @@
                         <p>最近：{{d.last_time}}</p>
                     </script>
                     <script type="text/html" id="checkboxstatus">
-                        <input type='checkbox' name='status' lay-skin='switch' value="{{d.uid}}" lay-filter='status' lay-text='正常|禁止'  {{ d.status == 1 ? 'checked' : '' }}>
+                    <input type='checkbox' name='status' lay-skin='switch' value="{{d.uid}}" lay-filter='status' lay-text='正常|禁止'  {{ d.status == 1 ? 'checked' : '' }}>
                     </script>
+                    <script type="text/html" id="checkboxislock">
+                        <input type='checkbox' name='pay_code_is_lock' lay-skin='switch' value="{{d.uid}}" lay-filter='pay_code_is_lock' lay-text='锁定|解锁'  {{ d.pay_code_is_lock == 1 ? 'checked' : '' }}>
+                    </script>
+
                     <script type="text/html" id="barDemo">
                         <button type="button" class="layui-btn layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</button>
                         <button type="button" class="layui-btn layui-btn-xs" onclick="dropdown(this)">操作 <span class="caret"></span></button>
@@ -289,9 +293,9 @@
             {field: 'phone', title: '手机号',align:'center',width:'8%'},
             {field: 'now_money', title: '余额',width:'6%',sort:true,event:'now_money',align:'center'},
             {field: 'h5_pay_code', title: '收款码', event:'open_h5_pay_code', width: '6%',align:'center', templet: '<p lay-event="open_image"><img class="h5_pay_code" style="cursor: pointer" class="open_image" data-image="{{d.h5_pay_code}}" src="{{d.h5_pay_code}}" alt="{{d.nickname}}"></p>'},
+            {field: 'pay_code_is_lock', title: '锁定收款码',templet:"#checkboxislock",width:'6%',align:'center'},
             {field: 'pay_count', title: '购买次数',align:'center',width:'6%'},
             {field: 'extract_count_price', title: '累计提现',align:'center',width:'6%'},
-            {field: 'integral', title: '积分',width:'6%',sort:true,event:'integral',align:'center'},
             {field: 'spread_uid_nickname', title: '推荐人',align:'center'},
             {field: 'sex', title: '性别',width:'4%',align:'center'},
             {field: 'data_time', title: '访问日期',align:'center',width:'12%',templet:'#data_time'},
@@ -373,6 +377,17 @@
             });
         }else{
             layList.baseGet(layList.Url({a:'set_status',p:{status:0,uid:value}}),function (res) {
+                layList.msg(res.msg);
+            });
+        }
+    });
+    layList.switch('pay_code_is_lock',function (odj,value,name) {
+        if(odj.elem.checked==true){
+            layList.baseGet(layList.Url({a:'set_lock',p:{pay_code_is_lock:1,uid:value}}),function (res) {
+                layList.msg(res.msg);
+            });
+        }else{
+            layList.baseGet(layList.Url({a:'set_lock',p:{pay_code_is_lock:0,uid:value}}),function (res) {
                 layList.msg(res.msg);
             });
         }

@@ -235,7 +235,7 @@ class User extends AuthController
      * @return json
      */
     public function set_status($status = '', $uid = 0, $is_echo = 0)
-    {
+    {echo $status;exit;
         if ($is_echo == 0) {
             if ($status == '' || $uid == 0) return Json::fail('参数错误');
             UserModel::where(['uid' => $uid])->update(['status' => $status]);
@@ -247,7 +247,17 @@ class User extends AuthController
         }
         return Json::successful($status == 0 ? '禁用成功' : '解禁成功');
     }
-
+    /**
+     * 修改user表状态
+     *
+     * @return json
+     */
+    public function set_lock($pay_code_is_lock = '', $uid = 0, $is_echo = 0)
+    {
+        if ($pay_code_is_lock == '' || $uid == 0) return Json::fail('参数错误');
+        UserModel::where(['uid' => $uid])->update(['pay_code_is_lock' => $pay_code_is_lock]);
+        return Json::successful($pay_code_is_lock == 0 ? '解锁成功' : '锁定成功');
+    }
     /**
      * 获取user表
      *

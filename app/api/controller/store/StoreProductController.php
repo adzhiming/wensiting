@@ -104,6 +104,7 @@ class StoreProductController
      */
     public function detail(Request $request, $id, $type = 0)
     {
+
         if (!$id || !($storeInfo = StoreProduct::getValidProduct($id))) return app('json')->fail('商品不存在或已下架');
         $siteUrl = sysConfig('site_url');
         $storeInfo['image'] = UtilService::setSiteUrl($storeInfo['image'], $siteUrl);
@@ -153,7 +154,7 @@ class StoreProductController
         } else $data['replyChance'] = 0;
         $data['mer_id'] = $storeInfo['mer_id'];
         $data['system_store'] = ($res = SystemStore::getStoreDispose()) ? $res : [];
-        $data['good_list'] = StoreProduct::getGoodList(18, 'image,store_name,price,id,ot_price');
+        $data['good_list'] = StoreProduct::getGoodList(18, 'image,store_name,price,id,ot_price,stock');
         $data['mapKey'] = sysConfig('tengxun_map_key');
         $data['store_self_mention'] = (int)sysConfig('store_self_mention') ?? 0;//门店自提是否开启
         return app('json')->successful($data);
@@ -208,7 +209,7 @@ class StoreProductController
             ['limit', 0]
         ], $request, true);
         if (!$limit) return app('json')->successful([]);
-        $productHot = StoreProduct::getHotProductLoading('id,image,store_name,cate_id,price,unit_name,ot_price', (int)$page, (int)$limit);
+        $productHot = StoreProduct::getHotProductLoading('id,image,store_name,cate_id,price,unit_name,ot_price,stock', (int)$page, (int)$limit);
         return app('json')->successful($productHot);
     }
 

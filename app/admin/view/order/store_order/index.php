@@ -54,7 +54,7 @@
                                             <i class="layui-icon layui-icon-search"></i>搜索</button>
                                         <button @click="excel" type="button" class="layui-btn layui-btn-warm layui-btn-sm export" type="button">
                                             <i class="fa fa-floppy-o" style="margin-right: 3px;"></i>导出</button>
-                                        <button @click="refresh" type="reset" class="layui-btn layui-btn-primary layui-btn-sm">
+                                        <button @click="refresh" type="reset" class="layui-btn layui-btn-primary layui-btn-sm refreshclass">
                                             <i class="layui-icon layui-icon-refresh" ></i>刷新</button>
                                     </div>
                                 </div>
@@ -102,12 +102,12 @@
                     </script>
                     <!--用户信息-->
                     <script type="text/html" id="userinfo">
-                        {{d.nickname==null ? '暂无信息':d.nickname}}/{{d.uid}}
+                        {{d.user_phone==null ? '暂无信息':d.user_phone}}/{{d.uid}}
                     </script>
                     <!--分销员信息-->
                     <script type="text/html" id="spread_uid">
                         {{# if(d.spread_uid != 0){ }}
-                        <button class="btn btn-default btn-xs btn-outline" type="button" onclick="$eb.createModalFrame('推荐人信息','{:Url('order_spread_user')}?uid={{d.spread_uid}}',{w:600,h:400})">{{d.spread_nickname}}</button>
+                        <button class="btn btn-default btn-xs btn-outline" type="button" onclick="$eb.createModalFrame('推荐人信息','{:Url('order_spread_user')}?uid={{d.spread_uid}}',{w:600,h:400})">{{d.spread_phone}}</button>
                         {{# }else{ }}无{{# } }}
                     </script>
                     <!--支付状态-->
@@ -415,10 +415,11 @@
         return [
             {type:'checkbox'},
             {field: 'order_id', title: '订单号', sort: true,event:'order_id',width:'14%',templet:'#order_id'},
-            {field: 'nickname', title: '用户信息',templet:'#userinfo',width:'10%',align:'center'},
+            {field: 'user_phone', title: '用户信息',templet:'#userinfo',width:'10%',align:'center'},
             {field: 'spread_uid', title: '推荐人信息',templet:'#spread_uid',width:'10%',align:'center'},
             {field: 'info', title: '商品信息',templet:"#info",height: 'full-20'},
             {field: 'pay_price', title: '实际支付',width:'8%',align:'center'},
+            {field: 'apply_jsprice', title: '寄售价',width:'8%',align:'center'},
             {field: 'paid', title: '支付状态',templet:'#paid',width:'8%',align:'center'},
             {field: 'status', title: '订单状态',templet:'#status',width:'8%',align:'center'},
             {field: 'add_time', title: '下单时间',width:'10%',sort: true,align:'center'},
@@ -433,6 +434,7 @@
                     $eb.axios.get(url).then(function(res){
                         if(res.status == 200 && res.data.code == 200) {
                             $eb.$swal('success',res.data.msg);
+                            $(".refreshclass").trigger("click");
                         }else
                             return Promise.reject(res.data.msg || '修改失败')
                     }).catch(function(err){
@@ -446,6 +448,7 @@
                     $eb.axios.get(url).then(function(res){
                         if(res.status == 200 && res.data.code == 200) {
                             $eb.$swal('success',res.data.msg);
+                            $(".refreshclass").trigger("click");
                         }else
                             return Promise.reject(res.data.msg || '修改失败')
                     }).catch(function(err){
@@ -455,12 +458,13 @@
                 break;
             case 'order_sale':
                 var url =layList.U({c:'order.store_order',a:'order_sale',p:{id:data.id}});
-								console.log(data);
+								//console.log(data);
 								var tipMsg ="确定收到"+parseFloat(data.pay_price*data.is_sale_point/100).toFixed(2)+"手续费，通过该订单的寄售申请？"
                 $eb.$swal('delete',function(){
                     $eb.axios.get(url).then(function(res){
                         if(res.status == 200 && res.data.code == 200) {
                             $eb.$swal('success',res.data.msg);
+                            $(".refreshclass").trigger("click");
                         }else
                             return Promise.reject(res.data.msg || '修改失败')
                     }).catch(function(err){
@@ -474,6 +478,7 @@
                     $eb.axios.get(url).then(function(res){
                         if(res.status == 200 && res.data.code == 200) {
                             $eb.$swal('success',res.data.msg);
+                            $(".refreshclass").trigger("click");
                         }else
                             return Promise.reject(res.data.msg || '修改失败')
                     }).catch(function(err){
@@ -495,6 +500,7 @@
                             success:function (res) {
                                 if(res.code == 200) {
                                     $eb.$swal('success',res.msg);
+                                    $(".refreshclass").trigger("click");
                                 }else
                                     $eb.$swal('error',res.msg);
                             }
@@ -510,6 +516,7 @@
                     $eb.axios.get(url).then(function(res){
                         if(res.status == 200 && res.data.code == 200) {
                             $eb.$swal('success',res.data.msg);
+                            $(".refreshclass").trigger("click");
                         }else
                             return Promise.reject(res.data.msg || '收货失败')
                     }).catch(function(err){
@@ -531,6 +538,7 @@
                     $eb.axios.post(url,{ids:ids}).then(function(res){
                         if(res.status == 200 && res.data.code == 200) {
                             $eb.$swal('success',res.data.msg);
+                            $(".refreshclass").trigger("click");
                         }else
                             return Promise.reject(res.data.msg || '删除失败')
                     }).catch(function(err){

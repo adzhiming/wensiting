@@ -27,9 +27,13 @@
         <div class="sidebar-collapse">
             <ul class="nav" id="side-menu">
                 <li class="nav-header">
-                    <div class="dropdown profile-element admin_open">
-                        <span>
-                            <img alt="image" class="imgbox" src="{$site_logo}" onerror="javascript:this.src='{__ADMIN_PATH}images/admin_logo.png';"/>
+                    <div class="dropdown profile-element admin_open" >
+                        <span style="    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    /* display: none; */
+    padding: 18px 0;">文思庭
                         </span>
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                             <span class="clear" style="margin-top: 20px;">

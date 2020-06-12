@@ -92,6 +92,7 @@ class StoreOrder extends BaseModel
             }
             $item['_info'] = $_info;
             $item['spread_nickname'] = Db::name('user')->where('uid', $item['spread_uid'])->value('nickname');
+            $item['spread_phone'] = Db::name('user')->where('uid', $item['spread_uid'])->value('phone');
             $item['add_time'] = date('Y-m-d H:i:s', $item['add_time']);
             $item['back_integral'] = $item['back_integral'] ?: 0;
             if ($item['pink_id'] || $item['combination_id']) {
@@ -474,7 +475,7 @@ HTML;
 				// 		$order = self::where('id', $id)->find();
 				// 	}
 				// }
-        $res = self::where('id', $id)->update(['paid' => 1, 'pay_time' => time()]);
+        $res = self::where('id', $id)->update(['paid' => 1,'is_pay_valid'=>2, 'pay_time' => time()]);
         return $res;
     }
 
@@ -510,21 +511,21 @@ HTML;
     {
         $count = self::where('id', $id)->count();
         if (!$count) return self::setErrorInfo('订单不存在');
-        $count = self::where('id', $id)->where('is_sale', '>', 0)->count();
-        if ($count) return self::setErrorInfo('订单已寄售');
+        /*$count = self::where('id', $id)->where('is_sale', '>', 0)->count();
+        if ($count) return self::setErrorInfo('订单已寄售');*/
 
         $order = self::where('id', $id)->find();
         $product_id = Db::name('store_order_cart_info')->where('oid',$id)->value('product_id');
-        $store_product_attr = Db::name('store_product_attr_value')->where('product_id',$product_id)->count();
-        if ($store_product_attr >= 1 ) return self::setErrorInfo('此商品订单不支持寄售，不支持多规格！！！');
-        if ($order['total_num'] > 1 ) return self::setErrorInfo('此商品订单不支持寄售，商品数量不为一！！！');
+        //$store_product_attr = Db::name('store_product_attr_value')->where('product_id',$product_id)->count();
+       // if ($store_product_attr >= 1 ) return self::setErrorInfo('此商品订单不支持寄售，不支持多规格！！！');
+       // if ($order['total_num'] > 1 ) return self::setErrorInfo('此商品订单不支持寄售，商品数量不为一！！！');
         $product = Db::name('store_product')->where('id',$product_id)->find();
-        $is_sale_rade = sysConfig('is_sale_rate');;
+        $is_sale_rade = sysConfig('is_sale_rate');
         $product_edit = array();
-        $product_edit['price'] = $product['price'] * (1+$is_sale_rade/100);
-        $product_edit['vip_price'] = $product['vip_price'] * (1+$is_sale_rade/100);
-        $product_edit['ot_price'] = $product['ot_price'] * (1+$is_sale_rade/100);
-        $product_edit['cost'] = $product['cost'] * (1+$is_sale_rade/100);
+        $product_edit['price'] = $order['apply_jsprice'];
+        $product_edit['vip_price'] = $order['apply_jsprice'];
+        $product_edit['ot_price'] = $order['apply_jsprice'];
+        $product_edit['cost'] = $order['apply_jsprice'];
         $product_edit['stock'] = $product['stock'] +1;
         $product_edit['is_show'] = 1;
         $product_edit['is_hot'] = 1;
@@ -543,11 +544,12 @@ HTML;
             }
             // 提交事务
             Db::commit();
-            return $res;
+            return ['code'=>0,'data'=>$res,'msg'=>'修改成功'];
         } catch (\Exception $e) {
             // 回滚事务
             Db::rollback();
-            return self::setErrorInfo('修改失败');
+            return ['code'=>1,'data'=>'','msg'=>$e->getMessage()];
+           // return self::setErrorInfo($e->getMessage());
         }
 
 

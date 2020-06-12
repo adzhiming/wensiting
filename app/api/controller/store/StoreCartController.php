@@ -3,6 +3,7 @@ namespace app\api\controller\store;
 
 use app\models\store\StoreBargainUserHelp;
 use app\models\store\StoreCart;
+use app\models\store\StoreProduct;
 use app\Request;
 use crmeb\services\UtilService;
 
@@ -43,6 +44,9 @@ class StoreCartController
             ['bargainId',0],//砍价产品编号
             ['new',1], // 1 加入购物车直接购买  0 加入购物车
         ], $request, true);
+       //查询该商品是否自己寄售的
+        $uuid = StoreProduct::getProductUuid($productId);
+        if($uuid == $request->uid()) return app('json')->fail('不可以购买自己寄售的商品');
         if (!$productId || !is_numeric($productId)) return app('json')->fail('参数错误');
         if ($bargainId && StoreBargainUserHelp::getSurplusPrice($bargainId, $request->uid())) return app('json')->fail('请先砍价');
         if($combinationId > 0) $cartNum = 1;

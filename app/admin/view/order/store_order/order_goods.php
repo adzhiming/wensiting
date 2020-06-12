@@ -87,6 +87,7 @@
             layList.layer.close(index);
             layList.msg(res.msg);
         });
+        $(".refreshclass").trigger("click");
     });
 
 </script>

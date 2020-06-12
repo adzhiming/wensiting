@@ -84,7 +84,7 @@ class AuthController
         $phone = Request()->param('phone');
         if (!$phone) return app('json')->fail('手机号码错误');
         if(CacheService::get('code_'.$phone)) return app('json')->fail($time.'秒内有效');
-        $rs = $sms::requestSmsCode($phone,$signName='购物继售商城',$template='SMS_189621955');
+        $rs = $sms::requestSmsCode($phone,$signName='文思庭',$template='SMS_191817294');
         if ($rs) CacheService::set('code_'.$phone, $rs, $time);
         return app('json')->success( $rs ? '发送成功': '发送失败');
     }
@@ -189,10 +189,10 @@ class AuthController
 
         //验证验证码
         $verifyCode = CacheService::get('code_'.$phone);
-        // if(!$verifyCode) return app('json')->fail('请先获取验证码');
+        if(!$verifyCode) return app('json')->fail('请先获取验证码');
             
         $verifyCode = substr($verifyCode, 0, 4);
-        // if($verifyCode != $captcha) return app('json')->fail('验证码错误');
+        if($verifyCode != $captcha) return app('json')->fail('验证码错误');
            
         //数据库查询
         $user = User::where('account', $phone)->find();

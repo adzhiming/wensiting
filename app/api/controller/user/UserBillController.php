@@ -163,6 +163,7 @@ class UserBillController
             $siteUrl = sysConfig('site_url');
             $routineSpreadBanner = GroupDataService::getData('routine_spread_banner');
             if (!count($routineSpreadBanner)) return app('json')->fail('暂无海报');
+
             if ($type == 1) {
                 //小程序
                 $name = $user['uid'] . '_' . $user['is_promoter'] . '_user_routine.jpg';
@@ -243,18 +244,23 @@ class UserBillController
                 $name = $user['uid'] . '_' . $user['is_promoter'] . '_user_wap.jpg';
                 
                 $imageInfo = SystemAttachment::getInfo($name, 'name');
+
                 //检测远程文件是否存在
                 if (isset($imageInfo['att_dir']) && strstr($imageInfo['att_dir'], 'http') !== false && UtilService::CurlFileExist($imageInfo['att_dir']) === false) {
+
                     $imageInfo = null;
                     SystemAttachment::where(['name' => $name])->delete();
                 }
-                if (!$imageInfo) {
+
+                
+                if (!$imageInfo || (isset($imageInfo['att_dir']) && !is_file($siteUrl .$imageInfo['att_dir']))) {
                     $codeUrl = UtilService::setHttpType($siteUrl . '?spread=' . $user['uid'], 1);//二维码链接
                     $imageInfo = UtilService::getQRCodePath($codeUrl, $name);
                     if (!$imageInfo) return app('json')->fail('二维码生成失败');
                     SystemAttachment::attachmentAdd($imageInfo['name'], $imageInfo['size'], $imageInfo['type'], $imageInfo['dir'], $imageInfo['thumb_path'], 1, $imageInfo['image_type'], $imageInfo['time'], 2);
                     $urlCode = $imageInfo['dir'];
                 } else $urlCode = $imageInfo['att_dir'];
+
                 if ($imageInfo['image_type'] == 1) $urlCode = $siteUrl . $urlCode;
                 $siteUrl = UtilService::setHttpType($siteUrl, 1);
                 $filelink = [
@@ -263,6 +269,7 @@ class UserBillController
                 ];
                 if (!file_exists($filelink['Bold'])) return app('json')->fail('缺少字体文件Bold');
                 if (!file_exists($filelink['Normal'])) return app('json')->fail('缺少字体文件Normal');
+
                 foreach ($routineSpreadBanner as $key => &$item) {
                     $posterInfo = '海报生成失败:(';
                     $config = array(
@@ -302,16 +309,22 @@ class UserBillController
                         'background' => $item['pic']
                     );
                     $resWap = $resWap && $posterInfo = UtilService::setSharePoster($config, 'wap/spread/poster');
+
                     if (!is_array($posterInfo)) return app('json')->fail($posterInfo);
                     SystemAttachment::attachmentAdd($posterInfo['name'], $posterInfo['size'], $posterInfo['type'], $posterInfo['dir'], $posterInfo['thumb_path'], 1, $posterInfo['image_type'], $posterInfo['time'], 2);
                     if ($resWap) {
                         if ($posterInfo['image_type'] == 1)
+                        {
                             $item['wap_poster'] = $siteUrl . $posterInfo['dir'];
+                        }
                         else
+                        {
                             $item['wap_poster'] = UtilService::setHttpType($posterInfo['dir'], 1);
+                        }
                     }
                 }
             }
+
             if ($resRoutine && $resWap) return app('json')->successful($routineSpreadBanner);
             else return app('json')->fail('生成图片失败');
         } catch (\Exception $e) {

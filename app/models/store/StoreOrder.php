@@ -516,8 +516,9 @@ class StoreOrder extends BaseModel
         }
     }
 
-    public static function order_applysale($id, $uid)
+    public static function order_applysale($id, $uid,$jsprice)
     {
+        if($jsprice == 0)  return self::setErrorInfo('寄售价不能为0元');
         $order = self::where('id', $id)->find();
         if (!$order) return self::setErrorInfo('订单不存在');
         if ($order['is_sale'] >0 ) return self::setErrorInfo('订单已寄售');
@@ -528,7 +529,7 @@ class StoreOrder extends BaseModel
         if ($store_product_attr >= 1 ) return self::setErrorInfo('此商品订单不支持寄售，不支持多规格！！！');
         if ($order['total_num'] > 1 ) return self::setErrorInfo('此商品订单不支持寄售，商品数量不为一！！！');
         $product = Db::name('store_product')->where('id',$product_id)->find();
-        if($product['uuid']) return self::setErrorInfo('该商品已经存在寄售');
+        if($product['uuid'] == $uid) return self::setErrorInfo('该商品已经存在寄售');
         // $is_sale_rade = sysConfig('is_sale_rate');;
         // $product_edit = array();
         // $product_edit['price'] = $product['price'] * (1+$is_sale_rade/100);
@@ -545,7 +546,7 @@ class StoreOrder extends BaseModel
         // $product_edit['order_id'] = $id;
         Db::startTrans();
         try {
-            $res = self::where('id', $id)->update(['is_sale_valid' =>1]);
+            $res = self::where('id', $id)->update(['is_sale_valid' =>1,'apply_jsprice'=>$jsprice]);
             // 提交事务
             Db::commit();
             return $res;
@@ -1368,6 +1369,13 @@ class StoreOrder extends BaseModel
 						$list[$k]['is_sale_point'] = sys_config('is_sale_point');
 						$list[$k]['is_sale_pid_rate'] = sys_config('is_sale_pid_rate');
 						$list[$k]['sys_customer_code'] = sys_config('sys_customer_code');
+						$list[$k]['h5_pay_code'] = sys_config('h5_pay_code');
+						$userpay_code = StoreProduct::paycodebyorder($order['id']);
+						if(!$userpay_code){
+							$list[$k]['user_pay_code'] = sys_config('h5_pay_code');
+						}else{
+							$list[$k]['user_pay_code'] = $userpay_code;
+						}
             if ($list[$k]['_status']['_type'] == 3) {
                 foreach ($order['cartInfo'] ?: [] as $key => $product) {
                     $list[$k]['cartInfo'][$key]['is_reply'] = StoreProductReply::isReply($product['unique'], 'product');

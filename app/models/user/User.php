@@ -262,9 +262,9 @@ class User extends BaseModel
     public static function backOrderBrokerage($orderInfo,bool $open = true)
     {
         //TODO 如果时营销产品不返佣金
-        if (isset($orderInfo['combination_id']) && $orderInfo['combination_id']) return true;
-        if (isset($orderInfo['seckill_id']) && $orderInfo['seckill_id']) return true;
-        if (isset($orderInfo['bargain_id']) && $orderInfo['bargain_id']) return true;
+        //if (isset($orderInfo['combination_id']) && $orderInfo['combination_id']) return true;
+        //if (isset($orderInfo['seckill_id']) && $orderInfo['seckill_id']) return true;
+        //if (isset($orderInfo['bargain_id']) && $orderInfo['bargain_id']) return true;
         //TODO 支付金额减掉邮费
         $orderInfo['pay_price'] = bcsub($orderInfo['pay_price'], $orderInfo['pay_postage'], 2);
         //TODO 获取购买商品的用户
@@ -276,22 +276,27 @@ class User extends BaseModel
         $storeBrokerageStatus = $storeBrokerageStatus ? $storeBrokerageStatus : 1;
         //TODO 指定分销 判断 上级是否时推广员  如果不是推广员直接跳转二级返佣
         if ($storeBrokerageStatus == 1) {
-            if (!User::be(['uid' => $userInfo['spread_uid'], 'is_promoter' => 1])) return self::backOrderBrokerageTwo($orderInfo,$open);
+            //已改成固定模式2，人人分销
+            return true;
+            //文思庭只返一级  if (!User::be(['uid' => $userInfo['spread_uid'], 'is_promoter' => 1])) return self::backOrderBrokerageTwo($orderInfo,$open);
         }
         //TODO 获取后台一级返佣比例
         $storeBrokerageRatio = sys_config('store_brokerage_ratio');
         //TODO 一级返佣比例 小于等于零时直接返回 不返佣
         if ($storeBrokerageRatio <= 0) return true;
-        //TODO 计算获取一级返佣比例
-        $brokerageRatio = bcdiv($storeBrokerageRatio, 100, 2);
+        //TODO 计算获取一级返佣比例 改成千分比
+        $brokerageRatio = bcdiv($storeBrokerageRatio, 1000, 3);
         //TODO 成本价
-        $cost = isset($orderInfo['cost']) ? $orderInfo['cost'] : 0;
+        //$cost = isset($orderInfo['cost']) ? $orderInfo['cost'] : 0;
         //TODO 成本价大于等于支付价格时直接返回
-        if ($cost >= $orderInfo['pay_price']) return true;
+        //if ($cost >= $orderInfo['pay_price']) return true;
         //TODO 获取订单毛利
-        $payPrice = bcsub($orderInfo['pay_price'], $cost, 2);
+        //$payPrice = bcsub($orderInfo['pay_price'], $cost, 2);
         //TODO 返佣金额 = 毛利 / 一级返佣比例
-        $brokeragePrice = bcmul($payPrice, $brokerageRatio, 2);
+        //$brokeragePrice = bcmul($payPrice, $brokerageRatio, 2);
+
+        //改成订单金额乘以返佣比例20200606
+        $brokeragePrice = bcmul($orderInfo['pay_price'], $brokerageRatio, 2);
         //TODO 返佣金额小于等于0 直接返回不返佣金
         if ($brokeragePrice <= 0) return true;
         //TODO 获取上级推广员信息
@@ -322,6 +327,7 @@ class User extends BaseModel
      */
     public static function backOrderBrokerageTwo($orderInfo,bool $open = true)
     {
+        return true; //20200606改为一级分佣
         //TODO 获取购买商品的用户
         $userInfo = User::getUserInfo($orderInfo['uid']);
         //TODO 获取上推广人

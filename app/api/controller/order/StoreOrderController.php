@@ -167,6 +167,7 @@ class StoreOrderController
                 return app('json')->status('ORDER_EXIST', '订单生成失败，你已经参加该团了，请先支付订单', ['orderId' => StoreOrder::getStoreIdPink($pinkId, $request->uid())]);
         }
         $isChannel = 1;
+
         if($from == 'weixin')
             $isChannel = 0;
         elseif ($from == 'weixinh5')
@@ -656,9 +657,10 @@ class StoreOrderController
      */
     public  function order_applysale(Request $request)
     {
-        list($id) = UtilService::postMore([['id',0]],$request, true);
+
+        list($id,$jsprice) = UtilService::postMore([['id',0],['jsprice',0]],$request, true);
         if(!$id) return app('json')->fail('参数错误');
-        if (StoreOrder::order_applysale($id, $request->uid()))
+        if (StoreOrder::order_applysale($id, $request->uid(),$jsprice))
             return app('json')->successful('操作成功');
         return app('json')->fail(StoreOrder::getErrorInfo('操作失败'));
     }

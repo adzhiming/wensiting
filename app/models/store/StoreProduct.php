@@ -179,7 +179,7 @@ class StoreProduct extends BaseModel
     {
         if (!$limit && !$bool) return [];
         $model = self::where('is_new', 1)->where('is_del', 0)->where('mer_id', 0)
-            ->where('stock', '>', 0)->where('is_show', 1)->field($field)
+            ->where('stock', '>=', 0)->where('is_show', 1)->field($field)
             ->order('sort DESC, id DESC');
         if ($limit) $model->limit($limit);
         $list = $model->select();
@@ -196,7 +196,7 @@ class StoreProduct extends BaseModel
     public static function getHotProduct($field = '*', $limit = 0, $uid = 0)
     {
         $model = self::where('is_hot', 1)->where('is_del', 0)->where('mer_id', 0)
-            ->where('stock', '>', 0)->where('is_show', 1)->field($field)
+            ->where('stock', '>=', 0)->where('is_show', 1)->field($field)
             ->order('sort DESC, id DESC');
         if ($limit) $model->limit($limit);
         return self::setLevelPrice($model->select(), $uid);
@@ -216,7 +216,7 @@ class StoreProduct extends BaseModel
     {
         if (!$limit) return [];
         $model = self::where('is_hot', 1)->where('is_del', 0)->where('mer_id', 0)
-            ->where('stock', '>', 0)->where('is_show', 1)->field($field)
+            ->where('stock', '>=', 0)->where('is_show', 1)->field($field)
             ->order('sort DESC, id DESC');
         if ($page) $model->page($page, $limit);
         $list = $model->select();
@@ -234,7 +234,7 @@ class StoreProduct extends BaseModel
     {
         if (!$limit && !$bool) return [];
         $model = self::where('is_best', 1)->where('is_del', 0)->where('mer_id', 0)
-            ->where('stock', '>', 0)->where('is_show', 1)->field($field)
+            ->where('stock', '>=', 0)->where('is_show', 1)->field($field)
             ->order('sort DESC, id DESC');
         if ($limit) $model->limit($limit);
         return self::setLevelPrice($model->select(), $uid);
@@ -315,7 +315,7 @@ class StoreProduct extends BaseModel
     public static function getBenefitProduct($field = '*', $limit = 0)
     {
         $model = self::where('is_benefit', 1)
-            ->where('is_del', 0)->where('mer_id', 0)->where('stock', '>', 0)
+            ->where('is_del', 0)->where('mer_id', 0)->where('stock', '>=', 0)
             ->where('is_show', 1)->field($field)
             ->order('sort DESC, id DESC');
         if ($limit) $model->limit($limit);
@@ -523,12 +523,58 @@ class StoreProduct extends BaseModel
      */
     public static function delUnPayOrder(){
         $order_cancel_time = sys_config('order_cancel_time');
+        $auto_sqtime = sys_config('auto_sell_out');
+        $auto_sqtime = date("H:i",strtotime($auto_sqtime));
         $time = time() - $order_cancel_time * 3600;
         $time_cancle = time() - 48 * 3600;
-        Db::name('store_order')->where('paid','0')->where('is_pay_valid','0')->where('pay_type','payh5code')->where('pay_time','null')->where('add_time','<',$time)->where('status','<','1')->update(['is_del'=>'1','is_system_del'=>'1']);
-        Db::name('store_order')->where('paid','0')->where('is_pay_valid','3')->where('pay_type','payh5code')->where('pay_time','null')->where('add_time','<',$time_cancle)->where('status','<','1')->update(['is_del'=>'1','is_system_del'=>'1']);
+        $sqtime = date("H:i",time());
+        $list = Db::name('store_order')->alias("a")->join("store_order_cart_info b","a.id = b.oid",'left')
+            ->field("distinct(b.product_id) product_id")->where('a.paid','0')->where('a.is_pay_valid','0')->where('a.pay_type','payh5code')->where('a.pay_time','null')
+            ->where('a.add_time','<',$time)->where('a.status','<','1')->where('a.is_del','0')->select();
+
+        if($list){
+            //把库存加回去
+            foreach ($list as $v){
+                if($auto_sqtime < $sqtime){ //判断是否到了售罄时间
+                    Db::name('store_product')->where(['id'=>$v['product_id']])->inc('stock', 1)->update();
+                }
+            }
+            Db::name('store_order')->where('paid','0')->where('is_pay_valid','0')->where('pay_type','payh5code')->where('pay_time','null')->where('add_time','<',$time)->where('status','<','1')->update(['is_del'=>'1','is_system_del'=>'1']);
+            Db::name('store_order')->where('paid','0')->where('is_pay_valid','3')->where('pay_type','payh5code')->where('pay_time','null')->where('add_time','<',$time_cancle)->where('status','<','1')->update(['is_del'=>'1','is_system_del'=>'1']);
+        }
+
+
+
         Db::name('store_cart')->where('is_pay','0')->where('is_new','0')->where('add_time','<',$time)->update(['is_del'=>'1']);
         return true;
+    }
+
+    public static function autoSellOut(){
+        //购物车的不更新，放到delUnPayOrder判断
+        $auto_sqtime = sys_config('auto_sell_out');
+        $auto_sqtime = date("H:i",strtotime($auto_sqtime));
+        $sqtime = date("H:i",time());
+        $where = [];
+        $ids = Db::name('store_cart')->where('is_pay','0')->where('is_new','0')->where('is_del','0')->column("product_id");
+        $where['mer_id'] = 0;
+        $where['is_show'] = 1;
+        $where['is_del'] = 0;
+        $model = self::where($where);
+        if($ids){
+            $notid = implode(",",$ids);
+            $model = $model->where('id','ont in',$notid);
+        }
+        $model = $model->where('stock','>',0)->field("id,stock")->select();
+        $update = [];
+        if($model){
+            if($sqtime > $auto_sqtime){
+                foreach ($model as $v){
+                    $update['stock'] =  0;
+                    self::where('id',$v['id'])->update($update);
+                }
+
+            }
+        }
     }
 
     public static function getPaycode($id){
@@ -553,4 +599,9 @@ class StoreProduct extends BaseModel
         return $url;
     }
 
+    /*判断该商品是否该用户的寄售商品*/
+    public static function getProductUuid($id){
+        $uuid = self::where('id', $id)->value('uuid');
+        return $uuid;
+    }
 }

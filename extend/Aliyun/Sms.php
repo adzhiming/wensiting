@@ -11,8 +11,8 @@ class Sms
         
         $params = array ();
         $code = self::generate_verify_code(4);
-        $accessKeyId = "yyVZJ2khZOIL6JZz";
-        $accessKeySecret = "plJ9TZzpDMX1fHuARQrugXRsftWAm6";
+        $accessKeyId = "LTAI4GGoEWHsDhKaAZs7da6E";
+        $accessKeySecret = "tZLpc7CaosA0xfudGasVGGqbyGakNj";
         $token = '123f4dc3ffdd769dd95d2ed1a3290911';
 
         // fixme 必填: 短信接收号码
